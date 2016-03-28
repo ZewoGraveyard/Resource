@@ -12,11 +12,11 @@
 
 ```swift
 public struct Todo {
-    public let id: String
+    public let id: String?
     public let title: String
     public let done: Bool
 
-    public init(id: String, title: String, done: Bool) {
+    public init(id: String?, title: String, done: Bool) {
         self.id = id
         self.title = title
         self.done = done
@@ -25,7 +25,7 @@ public struct Todo {
 
 extension Todo: ContentMappable {
     public init(content: Content) throws {
-        self.id = try content.get("id")
+        self.id = try? content.get("id")
         self.title = try content.get("title")
         self.done = try content.get("done")
     }
@@ -41,28 +41,37 @@ extension Todo: ContentRepresentable {
     }
 }
 
+let router = Router { route in
+    route.resources("/todos", resources: todoResources)
+}
+
 let todoResources = Resource(mediaTypes: [JSONMediaType()]) { todo in
-    todo.index { _ in
+    // GET /todos
+    todo.index { request in
         let todos = try app.getAllTodos()
         return Response(content: ["todos": todos.content])
     }
 
-    todo.create(content: TodoDetails.self) { _, details in
-        let todo = try app.createTodo(title: details.title, done: details.done)
-        return Response(content: todo)
+	// POST /todos
+    todo.create(content: Todo.self) { request, todo in
+        let newTodo = try app.createTodo(title: todo.title, done: todo.done)
+        return Response(content: newTodo)
     }
 
-    todo.show { _, id in
+	// GET /todos/:id
+    todo.show { request, id in
         let todo = try app.getTodo(id: id)
         return Response(content: todo)
     }
 
-    todo.update(content: TodoDetails.self) { _, id, details in
-        let todo = try app.updateTodo(id: id, title: details.title, done: details.done)
-        return Response(content: todo)
+	// PUT /todos/:id
+    todo.update(content: Todo.self) { request, id, todo in
+        let newTodo = try app.updateTodo(id: id, title: todo.title, done: todo.done)
+        return Response(content: newTodo)
     }
 
-    todo.destroy { _, id in
+	// DELETE /todos/:id
+    todo.destroy { request, id in
         try app.removeTodo(id: id)
         return Response(status: .noContent)
     }
