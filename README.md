@@ -10,6 +10,8 @@
 
 ## Usage
 
+### `Todo.swift`
+
 ```swift
 public struct Todo {
     public let id: String?
@@ -22,7 +24,11 @@ public struct Todo {
         self.done = done
     }
 }
+```
 
+### `TodoContent.swift`
+
+```swift
 extension Todo: ContentMappable {
     public init(content: Content) throws {
         self.id = try? content.get("id")
@@ -40,11 +46,19 @@ extension Todo: ContentRepresentable {
         ]
     }
 }
+```
 
+### `Router.swift`
+
+```swift
 let router = Router { route in
     route.resources("/todos", resources: todoResources)
 }
+```
 
+### `TodoResources.swift`
+
+```swift
 let todoResources = Resource(mediaTypes: [JSONMediaType()]) { todo in
     // GET /todos
     todo.index { request in
