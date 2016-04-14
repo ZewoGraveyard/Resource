@@ -27,8 +27,8 @@
 
 public final class ResourceBuilder {
     public typealias RespondWithId = (request: Request, id: String) throws -> Response
-    public typealias RespondWithContent = (request: Request, content: Content) throws -> Response
-    public typealias RespondWithIdContent = (request: Request, id: String, content: Content) throws -> Response
+    public typealias RespondWithContent = (request: Request, content: StructuredData) throws -> Response
+    public typealias RespondWithIdContent = (request: Request, id: String, content: StructuredData) throws -> Response
 
     var mediaTypes: [MediaType] = []
 
@@ -38,7 +38,7 @@ public final class ResourceBuilder {
 
     public func index(middleware: Middleware..., respond: Respond) {
         let responder = BasicResponder(respond)
-        self.index = middleware.intercept(responder)
+        self.index = middleware.chain(to: responder)
     }
 
     var create: Responder = BasicResponder { _ in
@@ -47,7 +47,7 @@ public final class ResourceBuilder {
 
     public func create(middleware: Middleware..., respond: Respond) {
         let responder = BasicResponder(respond)
-        self.create = middleware.intercept(responder)
+        self.create = middleware.chain(to: responder)
     }
 
     public func create(middleware: Middleware..., respond: RespondWithContent) {
@@ -57,7 +57,7 @@ public final class ResourceBuilder {
             }
             return try respond(request: request, content: content)
         }
-        self.create = middleware.intercept(responder)
+        self.create = middleware.chain(to: responder)
     }
 
     public func create<T: ContentMappable>(middleware: Middleware..., content: T.Type, respond: (request: Request, content: T) throws -> Response) {
@@ -67,7 +67,7 @@ public final class ResourceBuilder {
             return try respond(request: request, content: content)
         }
         let middlewareChain: [Middleware] = [contentMapper] + middleware
-        self.create = middlewareChain.intercept(responder)
+        self.create = middlewareChain.chain(to: responder)
     }
 
     var show: Responder = BasicResponder { _ in
@@ -78,7 +78,7 @@ public final class ResourceBuilder {
         let responder = BasicResponder { request in
             return try respond(request: request, id: request.id!)
         }
-        self.show = middleware.intercept(responder)
+        self.show = middleware.chain(to: responder)
     }
 
     var update: Responder = BasicResponder { _ in
@@ -89,7 +89,7 @@ public final class ResourceBuilder {
         let responder = BasicResponder { request in
             return try respond(request: request, id: request.id!)
         }
-        self.update = middleware.intercept(responder)
+        self.update = middleware.chain(to: responder)
     }
 
     public func update(middleware: Middleware..., respond: RespondWithIdContent) {
@@ -99,7 +99,7 @@ public final class ResourceBuilder {
             }
             return try respond(request: request, id: request.id!, content: content)
         }
-        self.update = middleware.intercept(responder)
+        self.update = middleware.chain(to: responder)
     }
 
     public func update<T: ContentMappable>(middleware: Middleware..., content: T.Type, respond: (request: Request, id: String, content: T) throws -> Response) {
@@ -109,7 +109,7 @@ public final class ResourceBuilder {
             return try respond(request: request, id: request.id!, content: content)
         }
         let middlewareChain: [Middleware] = [contentMapper] + middleware
-        self.update = middlewareChain.intercept(responder)
+        self.update = middlewareChain.chain(to: responder)
     }
 
     var destroy: Responder = BasicResponder { _ in
@@ -120,7 +120,7 @@ public final class ResourceBuilder {
         let responder = BasicResponder { request in
             return try respond(request: request, id: request.id!)
         }
-        self.destroy = middleware.intercept(responder)
+        self.destroy = middleware.chain(to: responder)
     }
 }
 
@@ -152,6 +152,7 @@ extension RouterBuilder {
         addRoute(method: .post, path: path, middleware: middlewareChain, responder: resources.create)
         addRoute(method: .get, path: path + "/:id", middleware: middlewareChain, responder: resources.show)
         addRoute(method: .put, path: path + "/:id", middleware: middlewareChain, responder: resources.update)
+        addRoute(method: .patch, path: path + "/:id", middleware: middlewareChain, responder: resources.update)
         addRoute(method: .delete, path: path + "/:id", middleware: middlewareChain, responder: resources.destroy)
     }
 }
