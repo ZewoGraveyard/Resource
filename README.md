@@ -1,6 +1,6 @@
 # Resource
 
-[![Zewo 0.4](https://img.shields.io/badge/Zewo-0.4-FF7565.svg?style=flat)](http://zewo.io)
+[![Zewo 0.5](https://img.shields.io/badge/Zewo-0.4-FF7565.svg?style=flat)](http://zewo.io)
 [![Swift 3](https://img.shields.io/badge/Swift-3.0-orange.svg?style=flat)](https://swift.org)
 [![Platform Linux](https://img.shields.io/badge/Platform-Linux-lightgray.svg?style=flat)](https://swift.org)
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](https://tldrlegal.com/license/mit-license)
