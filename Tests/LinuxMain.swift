@@ -1,6 +1,10 @@
+#if os(Linux)
+
 import XCTest
-@testable import Resourcetest
+@testable import ResourceTestSuite
 
 XCTMain([
-	Resource(),
+    testCase(ResourceTests.allTests)
 ])
+
+#endif
