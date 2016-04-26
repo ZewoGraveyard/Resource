@@ -8,7 +8,7 @@ class ResourceTests: XCTestCase {
 }
 
 extension ResourceTests {
-    static var allTests : [(String, ResourceTests -> () throws -> Void)] {
+    static var allTests: [(String, ResourceTests -> () throws -> Void)] {
         return [
            ("testReality", testReality),
         ]
