@@ -12,9 +12,9 @@
 
 ## Usage
 
-### `Todo.swift`
-
 ```swift
+import Zewo
+
 public struct Todo {
     public let id: String?
     public let title: String
@@ -26,41 +26,25 @@ public struct Todo {
         self.done = done
     }
 }
-```
 
-### `TodoContent.swift`
-
-```swift
 extension Todo: ContentMappable {
-    public init(content: Content) throws {
-        self.id = try? content.get("id")
-        self.title = try content.get("title")
-        self.done = try content.get("done")
+    public init(mapper: Mapper) throws {
+        self.id = mapper.map(optionalFrom: "id")
+        self.title = try mapper.map(from: "title")
+        self.done = try mapper.map(from: "done")
     }
 }
 
-extension Todo: ContentRepresentable {
-    public var content: Content {
+extension Todo: StructuredDataRepresentable {
+    public var structuredData: StructuredData {
         return [
-            "id": Content.from(id),
-            "title": Content.from(title),
-            "done": Content.from(done)
+            "id": id.map({StructuredData.from($0)}) ?? nil,
+            "title": StructuredData.from(title),
+            "done": StructuredData.from(done)
         ]
     }
 }
-```
 
-### `Router.swift`
-
-```swift
-let router = Router { route in
-    route.resources("/todos", resources: todoResources)
-}
-```
-
-### `TodoResources.swift`
-
-```swift
 let todoResources = Resource(mediaTypes: [JSONMediaType()]) { todo in
     // GET /todos
     todo.index { request in
@@ -92,6 +76,12 @@ let todoResources = Resource(mediaTypes: [JSONMediaType()]) { todo in
         return Response(status: .noContent)
     }
 }
+
+let app = Router { route in
+    route.resources("/todos", resources: todoResources)
+}
+
+try Server(app).start()
 ```
 
 ## Installation
