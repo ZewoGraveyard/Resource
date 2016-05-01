@@ -45,7 +45,7 @@ extension Todo: StructuredDataRepresentable {
     }
 }
 
-let todoResources = Resource(mediaTypes: [JSONMediaType()]) { todo in
+let todoResources = Resource(mediaTypes: [JSONMediaType(), URLEncodedFormMediaType()]) { todo in
     // GET /todos
     todo.index { request in
         let todos = try app.getAllTodos()
