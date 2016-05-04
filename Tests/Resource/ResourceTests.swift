@@ -24,48 +24,35 @@ extension Todo: ContentMappable {
 extension Todo: StructuredDataRepresentable {
     public var structuredData: StructuredData {
         return [
-            "id": id.map({StructuredData.from($0)}) ?? nil,
-            "title": StructuredData.from(title),
-            "done": StructuredData.from(done)
+            "id": id.map({StructuredData($0)}) ?? nil,
+            "title": StructuredData(title),
+            "done": StructuredData(done)
         ]
     }
 }
 
 class ResourceTests: XCTestCase {
     func testReality() {
-        let todoResources = Resource(mediaTypes: []) { todo in
-            // GET /todos
-            todo.index { request in
-//                let todos = try app.getAllTodos()
-//                return Response(content: ["todos": todos.content])
+        let logger: Middleware
+
+        let todoResource = Resource("/todos") { todo in
+            todo.get { request in
                 return Response()
             }
 
-            // POST /todos
-            todo.create(content: Todo.self) { request, todo in
-//                let newTodo = try app.createTodo(title: todo.title, done: todo.done)
-//                return Response(content: newTodo)
+            todo.post { (request, todo: Todo) in
                 return Response()
             }
 
-            // GET /todos/:id
-            todo.show { request, id in
-//                let todo = try app.getTodo(id: id)
-//                return Response(content: todo)
+            todo.get { (request, id: Int) in
+                return Response()
+            }
+
+            todo.put { (request, id: String, todo: Todo) in
                 return Response()
             }
             
-            // PUT /todos/:id
-            todo.update(content: Todo.self) { request, id, todo in
-//                let newTodo = try app.updateTodo(id: id, title: todo.title, done: todo.done)
-//                return Response(content: newTodo)
-                return Response()
-            }
-            
-            // DELETE /todos/:id
-            todo.destroy { request, id in
-//                try app.removeTodo(id: id)
-//                return Response(status: .noContent)
+            todo.delete { (request, id: String) in
                 return Response()
             }
         }
