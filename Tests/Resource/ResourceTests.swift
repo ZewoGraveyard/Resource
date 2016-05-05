@@ -1,60 +1,118 @@
 import XCTest
 @testable import Resource
 
-public struct Todo {
-    public let id: String?
-    public let title: String
-    public let done: Bool
-
-    public init(id: String?, title: String, done: Bool) {
-        self.id = id
-        self.title = title
-        self.done = done
+public final class JSONMediaType: MediaType {
+    public init() {
+        super.init(
+            type: "application",
+            subtype: "json",
+            parameters: ["charset": "utf-8"],
+            parser: JSONStructuredDataParser(),
+            serializer: JSONStructuredDataSerializer()
+        )
     }
 }
 
+public struct JSONStructuredDataParser: StructuredDataParser {
+    public func parse(_ data: Data) throws -> StructuredData {
+        return ["title": "Zewo"]
+    }
+}
+
+public struct JSONStructuredDataSerializer: StructuredDataSerializer {
+    public func serialize(_ data: StructuredData) throws -> Data {
+        return Data("{\"title\": \"Zewo\"}")
+    }
+}
+
+struct Todo {
+    let title: String
+}
+
 extension Todo: ContentMappable {
-    public init(mapper: Mapper) throws {
-        self.id = mapper.map(optionalFrom: "id")
+    init(mapper: Mapper) throws {
         self.title = try mapper.map(from: "title")
-        self.done = try mapper.map(from: "done")
     }
 }
 
 extension Todo: StructuredDataRepresentable {
-    public var structuredData: StructuredData {
+    var structuredData: StructuredData {
         return [
-            "id": id.map({StructuredData($0)}) ?? nil,
-            "title": StructuredData(title),
-            "done": StructuredData(done)
+            "title": .make(title)
         ]
     }
 }
 
 class ResourceTests: XCTestCase {
-    func testReality() {
-        let logger: Middleware
-
-        let todoResource = Resource("/todos") { todo in
+    func testResource() {
+        var called = 0
+        let resource = Resource("/todos", mediaTypes: JSONMediaType()) { todo in
             todo.get { request in
+                called = 1
                 return Response()
             }
 
             todo.post { (request, todo: Todo) in
-                return Response()
+                called = 2
+                XCTAssertEqual(todo.title, "Zewo")
+                return Response(content: todo)
             }
 
             todo.get { (request, id: Int) in
+                called = 3
+                XCTAssertEqual(id, 42)
                 return Response()
             }
 
             todo.put { (request, id: String, todo: Todo) in
-                return Response()
+                called = 4
+                XCTAssertEqual(todo.title, "Zewo")
+                XCTAssertEqual(id, "42")
+                return Response(content: todo)
             }
             
             todo.delete { (request, id: String) in
+                called = 5
+                XCTAssertEqual(id, "42")
                 return Response()
             }
+        }
+
+        var response: Response
+
+        do {
+            let headers: Headers = ["content-type": "application/json"]
+            let body = "{\"title\": \"Zewo\"}"
+            let todo: StructuredData = ["title": "Zewo"]
+
+            let index = try Request(method: .get, uri: "/todos")
+            response = try resource.respond(to: index)
+            XCTAssertEqual(response.status, Status.ok)
+            XCTAssertEqual(called, 1)
+
+            let create = try Request(method: .post, uri: "/todos", headers: headers, body: body)
+            response = try resource.respond(to: create)
+            XCTAssertEqual(response.status, Status.ok)
+            XCTAssertEqual(response.content, todo)
+            XCTAssertEqual(called, 2)
+
+            let view = try Request(method: .get, uri: "/todos/42")
+            response = try resource.respond(to: view)
+            XCTAssertEqual(response.status, Status.ok)
+            XCTAssertEqual(called, 3)
+
+            let update = try Request(method: .put, uri: "/todos/42", headers: headers, body: body)
+            response = try resource.respond(to: update)
+            XCTAssertEqual(response.status, Status.ok)
+            XCTAssertEqual(response.content, todo)
+            XCTAssertEqual(called, 4)
+
+            let remove = try Request(method: .delete, uri: "/todos/42")
+            response = try resource.respond(to: remove)
+            XCTAssertEqual(response.status, Status.ok)
+            XCTAssertEqual(called, 5)
+        } catch {
+            XCTFail("\(error)")
         }
     }
 }
@@ -62,7 +120,7 @@ class ResourceTests: XCTestCase {
 extension ResourceTests {
     static var allTests: [(String, ResourceTests -> () throws -> Void)] {
         return [
-           ("testReality", testReality),
+           ("testResource", testResource),
         ]
     }
 }

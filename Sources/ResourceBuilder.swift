@@ -192,7 +192,9 @@ extension ResourceBuilder {
     public func addRoute<T: ContentMappable>(method: Method, middleware: [Middleware], content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
-            let content = request.storage[T.key] as! T
+            guard let content = request.storage[T.key] as? T else {
+                throw ClientError.badRequest
+            }
             return try respond(request: request, content: content)
         }
         addRoute(method: method, path: "", middleware: [contentMapper] + middleware, responder: responder)
@@ -221,7 +223,9 @@ extension ResourceBuilder {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
             let id = try id.init(resourceIdentifier: request.pathParameters["id"]!)
-            let content = request.storage[T.key] as! T
+            guard let content = request.storage[T.key] as? T else {
+                throw ClientError.badRequest
+            }
             return try respond(request: request, id: id, content: content)
         }
         addRoute(method: method, path: "/:id", middleware: [contentMapper] + middleware, responder: responder)
