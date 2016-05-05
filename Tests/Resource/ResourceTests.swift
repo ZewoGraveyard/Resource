@@ -29,7 +29,7 @@ struct Todo {
     let title: String
 }
 
-extension Todo: ContentMappable {
+extension Todo: Mappable {
     init(mapper: Mapper) throws {
         self.title = try mapper.map(from: "title")
     }
