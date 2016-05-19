@@ -60,11 +60,21 @@ public final class ResourceBuilder {
         self.create = middleware.chain(to: responder)
     }
 
-    public func create<T: ContentMappable>(middleware: Middleware..., content: T.Type, respond: (request: Request, content: T) throws -> Response) {
+    public func create<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
             let content = request.storage[T.key] as! T
             return try respond(request: request, content: content)
+        }
+        let middlewareChain: [Middleware] = [contentMapper] + middleware
+        self.create = middlewareChain.chain(to: responder)
+    }
+
+    public func create<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: inout T) throws -> Response) {
+        let contentMapper = ContentMapperMiddleware(mappingTo: content)
+        let responder = BasicResponder { request in
+            var content = request.storage[T.key] as! T
+            return try respond(request: request, content: &content)
         }
         let middlewareChain: [Middleware] = [contentMapper] + middleware
         self.create = middlewareChain.chain(to: responder)
@@ -102,11 +112,21 @@ public final class ResourceBuilder {
         self.update = middleware.chain(to: responder)
     }
 
-    public func update<T: ContentMappable>(middleware: Middleware..., content: T.Type, respond: (request: Request, id: String, content: T) throws -> Response) {
+    public func update<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, id: String, content: T) throws -> Response) {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
             let content = request.storage[T.key] as! T
             return try respond(request: request, id: request.id!, content: content)
+        }
+        let middlewareChain: [Middleware] = [contentMapper] + middleware
+        self.update = middlewareChain.chain(to: responder)
+    }
+
+    public func update<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, id: String, content: inout T) throws -> Response) {
+        let contentMapper = ContentMapperMiddleware(mappingTo: content)
+        let responder = BasicResponder { request in
+            var content = request.storage[T.key] as! T
+            return try respond(request: request, id: request.id!, content: &content)
         }
         let middlewareChain: [Middleware] = [contentMapper] + middleware
         self.update = middlewareChain.chain(to: responder)
