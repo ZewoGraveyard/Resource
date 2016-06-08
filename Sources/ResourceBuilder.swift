@@ -25,7 +25,7 @@
 public final class ResourceBuilder: RouterBuilder {}
 
 extension ResourceBuilder {
-    public func get(middleware: Middleware..., respond: Request throws -> Response) {
+    public func get(middleware: Middleware..., respond: Respond) {
         addRoute(method: .get, middleware: middleware, respond: respond)
     }
 
@@ -53,7 +53,7 @@ extension ResourceBuilder {
         addRoute(method: .post, middleware: middleware, respond: respond)
     }
 
-    public func post<T: Mappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
+    public func post<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         addRoute(method: .post, middleware: middleware, content: content, respond: respond)
     }
 
@@ -65,7 +65,7 @@ extension ResourceBuilder {
         addRoute(method: .post, middleware: middleware, id: id, respond: respond)
     }
 
-    public func post<I: ResourceIdentifier, T: Mappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
+    public func post<I: ResourceIdentifier, T: ContentMappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         addRoute(method: .post, middleware: middleware, id: id, content: content, respond: respond)
     }
 }
@@ -79,7 +79,7 @@ extension ResourceBuilder {
         addRoute(method: .put, middleware: middleware, respond: respond)
     }
 
-    public func put<T: Mappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
+    public func put<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         addRoute(method: .put, middleware: middleware, content: content, respond: respond)
     }
 
@@ -91,7 +91,7 @@ extension ResourceBuilder {
         addRoute(method: .put, middleware: middleware, id: id, respond: respond)
     }
 
-    public func put<I: ResourceIdentifier, T: Mappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
+    public func put<I: ResourceIdentifier, T: ContentMappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         addRoute(method: .put, middleware: middleware, id: id, content: content, respond: respond)
     }
 }
@@ -105,7 +105,7 @@ extension ResourceBuilder {
         addRoute(method: .patch, middleware: middleware, respond: respond)
     }
 
-    public func patch<T: Mappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
+    public func patch<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         addRoute(method: .patch, middleware: middleware, content: content, respond: respond)
     }
 
@@ -117,7 +117,7 @@ extension ResourceBuilder {
         addRoute(method: .patch, middleware: middleware, id: id, respond: respond)
     }
 
-    public func patch<I: ResourceIdentifier, T: Mappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
+    public func patch<I: ResourceIdentifier, T: ContentMappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         addRoute(method: .patch, middleware: middleware, id: id, content: content, respond: respond)
     }
 }
@@ -131,7 +131,7 @@ extension ResourceBuilder {
         addRoute(method: .delete, middleware: middleware, respond: respond)
     }
 
-    public func delete<T: Mappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
+    public func delete<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         addRoute(method: .delete, middleware: middleware, content: content, respond: respond)
     }
 
@@ -143,7 +143,7 @@ extension ResourceBuilder {
         addRoute(method: .delete, middleware: middleware, id: id, respond: respond)
     }
 
-    public func delete<I: ResourceIdentifier, T: Mappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
+    public func delete<I: ResourceIdentifier, T: ContentMappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         addRoute(method: .delete, middleware: middleware, id: id, content: content, respond: respond)
     }
 }
@@ -157,7 +157,7 @@ extension ResourceBuilder {
         addRoute(method: .options, middleware: middleware, respond: respond)
     }
 
-    public func options<T: Mappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
+    public func options<T: ContentMappable>(middleware: Middleware..., content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         addRoute(method: .options, middleware: middleware, content: content, respond: respond)
     }
 
@@ -169,7 +169,7 @@ extension ResourceBuilder {
         addRoute(method: .options, middleware: middleware, id: id, respond: respond)
     }
 
-    public func options<I: ResourceIdentifier, T: Mappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
+    public func options<I: ResourceIdentifier, T: ContentMappable>(middleware: Middleware..., id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         addRoute(method: .options, middleware: middleware, id: id, content: content, respond: respond)
     }
 }
@@ -189,10 +189,10 @@ extension ResourceBuilder {
         addRoute(method: method, path: "", middleware: middleware, responder: responder)
     }
 
-    public func addRoute<T: StructuredDataInitializable>(method: Method, middleware: [Middleware], content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
+    public func addRoute<T: ContentMappable>(method: Method, middleware: [Middleware], content: T.Type = T.self, respond: (request: Request, content: T) throws -> Response) {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
-            guard let content = request.storage[T.structuredDataStorageKey] as? T else {
+            guard let content = request.storage[T.key] as? T else {
                 throw ClientError.badRequest
             }
             return try respond(request: request, content: content)
@@ -219,11 +219,11 @@ extension ResourceBuilder {
         addRoute(method: method, path: "/:id", middleware: middleware, responder: responder)
     }
     
-    public func addRoute<I: ResourceIdentifier, T: StructuredDataInitializable>(method: Method, middleware: [Middleware], id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
+    public func addRoute<I: ResourceIdentifier, T: ContentMappable>(method: Method, middleware: [Middleware], id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
             let id = try id.init(resourceIdentifier: request.pathParameters["id"]!)
-            guard let content = request.storage[T.structuredDataStorageKey] as? T else {
+            guard let content = request.storage[T.key] as? T else {
                 throw ClientError.badRequest
             }
             return try respond(request: request, id: id, content: content)
