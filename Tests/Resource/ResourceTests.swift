@@ -29,7 +29,7 @@ struct Todo {
     let title: String
 }
 
-extension Todo: Mappable {
+extension Todo: ContentMappable {
     init(mapper: Mapper) throws {
         self.title = try mapper.map(from: "title")
     }
@@ -38,7 +38,7 @@ extension Todo: Mappable {
 extension Todo: StructuredDataRepresentable {
     var structuredData: StructuredData {
         return [
-            "title": .make(title)
+            "title": .infer(title)
         ]
     }
 }
@@ -118,7 +118,7 @@ class ResourceTests: XCTestCase {
 }
 
 extension ResourceTests {
-    static var allTests: [(String, ResourceTests -> () throws -> Void)] {
+    static var allTests: [(String, (ResourceTests) -> () throws -> Void)] {
         return [
            ("testResource", testResource),
         ]
