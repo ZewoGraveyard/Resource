@@ -1,4 +1,4 @@
-// Resource.swift
+// ResourceIdentifier.swift
 //
 // The MIT License (MIT)
 //
@@ -22,35 +22,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-@_exported import Router
-@_exported import ContentNegotiationMiddleware
+public protocol ResourceIdentifier {
+    init(resourceIdentifier: String) throws
+}
 
-public struct Resource: HTTP.Router {
-    public let middleware: [Middleware]
-    public let routes: [Route]
-    public let fallback: Responder
-    public let matcher: RouteMatcher
-
-    public init(_ path: String = "", middleware: [Middleware] = [], mediaTypes: MediaType..., build: (resource: ResourceBuilder) -> Void) {
-        let builder = ResourceBuilder(path: path)
-        build(resource: builder)
-
-        let contentNegotiaton = ContentNegotiationMiddleware(mediaTypes: mediaTypes)
-        self.middleware = [contentNegotiaton] + middleware
-
-        self.fallback = builder.fallback
-        self.matcher = TrieRouteMatcher(routes: builder.routes)
-        self.routes = builder.routes
-    }
-
-    public func match(_ request: Request) -> Route? {
-        return matcher.match(request)
+extension String: ResourceIdentifier {
+    public init(resourceIdentifier: String) throws {
+        self.init(resourceIdentifier)
     }
 }
 
-extension Resource {
-    public func respond(to request: Request) throws -> Response {
-        let responder = match(request) ?? fallback
-        return try middleware.chain(to: responder).respond(to: request)
+extension Int: ResourceIdentifier {
+    public init(resourceIdentifier: String) throws {
+        guard let int = Int(resourceIdentifier) else {
+            throw ClientError.badRequest
+        }
+        self.init(int)
     }
 }
