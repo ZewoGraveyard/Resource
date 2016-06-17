@@ -25,7 +25,7 @@
 @_exported import Router
 @_exported import ContentNegotiationMiddleware
 
-public struct Resource: HTTP.Router {
+public struct Resource: RouterProtocol {
     public let middleware: [Middleware]
     public let routes: [Route]
     public let fallback: Responder
