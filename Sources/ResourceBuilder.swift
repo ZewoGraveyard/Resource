@@ -49,7 +49,7 @@ extension ResourceBuilder {
         addRoute(method: .post, middleware: middleware, respond: respond)
     }
 
-    public func post(middleware: Middleware..., content: StructuredData.Type, respond: (request: Request, content: StructuredData) throws -> Response) {
+    public func post(middleware: Middleware..., respond: (request: Request, content: StructuredData) throws -> Response) {
         addRoute(method: .post, middleware: middleware, respond: respond)
     }
 
@@ -75,7 +75,7 @@ extension ResourceBuilder {
         addRoute(method: .put, middleware: middleware, respond: respond)
     }
 
-    public func put(middleware: Middleware..., content: StructuredData.Type, respond: (request: Request, content: StructuredData) throws -> Response) {
+    public func put(middleware: Middleware..., respond: (request: Request, content: StructuredData) throws -> Response) {
         addRoute(method: .put, middleware: middleware, respond: respond)
     }
 
@@ -101,7 +101,7 @@ extension ResourceBuilder {
         addRoute(method: .patch, middleware: middleware, respond: respond)
     }
 
-    public func patch(middleware: Middleware..., content: StructuredData.Type, respond: (request: Request, content: StructuredData) throws -> Response) {
+    public func patch(middleware: Middleware..., respond: (request: Request, content: StructuredData) throws -> Response) {
         addRoute(method: .patch, middleware: middleware, respond: respond)
     }
 
@@ -127,7 +127,7 @@ extension ResourceBuilder {
         addRoute(method: .delete, middleware: middleware, respond: respond)
     }
 
-    public func delete(middleware: Middleware..., content: StructuredData.Type, respond: (request: Request, content: StructuredData) throws -> Response) {
+    public func delete(middleware: Middleware..., respond: (request: Request, content: StructuredData) throws -> Response) {
         addRoute(method: .delete, middleware: middleware, respond: respond)
     }
 
@@ -153,7 +153,7 @@ extension ResourceBuilder {
         addRoute(method: .options, middleware: middleware, respond: respond)
     }
 
-    public func options(middleware: Middleware..., content: StructuredData.Type, respond: (request: Request, content: StructuredData) throws -> Response) {
+    public func options(middleware: Middleware..., respond: (request: Request, content: StructuredData) throws -> Response) {
         addRoute(method: .options, middleware: middleware, respond: respond)
     }
 
@@ -218,7 +218,7 @@ extension ResourceBuilder {
         }
         addRoute(method: method, path: "/:id", middleware: middleware, responder: responder)
     }
-    
+
     public func addRoute<I: ResourceIdentifier, T: ContentMappable>(method: Method, middleware: [Middleware], id: I.Type = I.self, content: T.Type = T.self, respond: (request: Request, id: I, content: T) throws -> Response) {
         let contentMapper = ContentMapperMiddleware(mappingTo: content)
         let responder = BasicResponder { request in
