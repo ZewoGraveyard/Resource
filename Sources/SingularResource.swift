@@ -1,4 +1,4 @@
-// Resource.swift
+// SingularResource.swift
 //
 // The MIT License (MIT)
 //
@@ -22,17 +22,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-public protocol Resource: RouterRepresentable {
-    associatedtype Controller: ResourceController
+public protocol SingularResource: RouterRepresentable {
+    associatedtype Controller: SingularResourceController
     var controller: Controller { get }
     var path: String { get }
-    var matcher: RouteMatcher.Type { get }
     var middleware: [Middleware] { get }
+    var matcher: RouteMatcher.Type { get }
     var mediaTypes: [MediaTypeRepresentor.Type] { get }
     func build(resource: ResourceBuilder)
 }
 
-extension Resource {
+extension SingularResource {
     public var path: String {
         return ""
     }
@@ -52,18 +52,10 @@ extension Resource {
     public func build(resource: ResourceBuilder) {}
 }
 
-extension Resource {
+extension SingularResource {
     public var router: RouterProtocol {
-        let typeName = String(self.dynamicType)
-
-        if typeName.hasSuffix("Resource") {
-            let string = String(typeName.characters.dropLast(8))
-            print(string)
-        }
-
         let resource = ResourceBuilder(path: path)
         build(resource: resource)
-        resource.list(controller.list)
         resource.create(controller.create)
         resource.detail(controller.detail)
         resource.update(controller.update)

@@ -1,4 +1,4 @@
-// ResourceIdentifier.swift
+// PathParameterInitializable.swift
 //
 // The MIT License (MIT)
 //
@@ -22,19 +22,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-public protocol ResourceIdentifier {
-    init(resourceIdentifier: String) throws
+public protocol PathParameterInitializable {
+    init(pathParameter: String) throws
 }
 
-extension String: ResourceIdentifier {
-    public init(resourceIdentifier: String) throws {
-        self.init(resourceIdentifier)
+extension String : PathParameterInitializable {
+    public init(pathParameter: String) throws {
+        self.init(pathParameter)
     }
 }
 
-extension Int: ResourceIdentifier {
-    public init(resourceIdentifier: String) throws {
-        guard let int = Int(resourceIdentifier) else {
+extension Int : PathParameterInitializable {
+    public init(pathParameter: String) throws {
+        guard let int = Int(pathParameter) else {
             throw ClientError.badRequest
         }
         self.init(int)
